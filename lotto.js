@@ -11,6 +11,7 @@ function Machine(name) {
     this.name = name;
     this.nextIDNum = 1000;
 
+    // Make customers a dictionary where IDs are keys and tickets bought are values
     this.customers = [];
     this.tickets = [];
 
@@ -164,8 +165,9 @@ function total_ticket_purchase(x,y,z,ID,machine) {
           }
         }
       }
-      else if
-    } 
+      // specified for clarity
+      else if (machine.pick4Left < 0 && machine.pick5Left == 0)
+    }
       }
 
     }
