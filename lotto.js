@@ -16,32 +16,25 @@ function Machine(name) {
     this.pick4 = [];
     this.pick5 = [];
 
-//    this.pick3_rem = MAX3 - this.pick3.length;
-//    this.pick4_rem = MAX4 - this.pick4.length;
-//    this.pick5_rem = MAX5 - this.pick5.length;
+    this.pick3Rem = MAX3 - this.pick3.length;
+    this.pick4Rem = MAX4 - this.pick4.length;
+    this.pick5Rem = MAX5 - this.pick5.length;
 }
 
 
 // define Customer constructor
-
-// helper functions
-function generate_id(machine) {
-    var id = machine.nextIDNum;
-    machine.nextIDNum += 1;
-    return id;
-}
-// end helper functions
-
 function Customer(machine) {
-    this.id = generate_id(machine);
-//    this.tickets = [];
+    this.id = function(machine){
+      var id = machine.nextIDNum;
+      machine.nextIDNum += 1;
+      return id;
+    };
     machine.customers += this.id;
 
-    function get_id() {
+    this.getID = function() {
       return this.id;
     }
 }
-
 
 // define Ticket constructor
 
@@ -119,7 +112,7 @@ function Ticket(pick, ownerID, machine) {
 
     this.pick = pick;
     this.ownerID = ownerID;
-    this.value = generate_ticket(pick, machine);
+    this.value = generate_ticket(pick);
 //    place_ticket(pick, machine, this.value);
 }
 
