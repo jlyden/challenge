@@ -16,9 +16,9 @@ function Machine(name) {
     this.pick4 = [];
     this.pick5 = [];
 
-    this.pick3_rem = MAX3 - this.pick3.length;
-    this.pick4_rem = MAX4 - this.pick4.length;
-    this.pick5_rem = MAX5 - this.pick5.length;
+//    this.pick3_rem = MAX3 - this.pick3.length;
+//    this.pick4_rem = MAX4 - this.pick4.length;
+//    this.pick5_rem = MAX5 - this.pick5.length;
 }
 
 
@@ -34,9 +34,13 @@ function generate_id(machine) {
 
 function Customer(machine) {
     this.id = generate_id(machine);
-    this.tickets = [];
+//    this.tickets = [];
     machine.customers += this.id;
+
+    function get_id() {
+      return this.id;
     }
+}
 
 
 // define Ticket constructor
@@ -87,21 +91,6 @@ function generate_ticket(pick) {
         return generate_ticket(pick);
     }
 }
-
-function place_ticket(pick, machine, value) {
-  switch (pick) {
-      case 3:
-          machine.pick3 += value;
-          break;
-      case 4:
-          machine.pick4 += value;
-          break;
-      case 5:
-          machine.pick5 += value;
-          break;
-    }
-    return;
-}
 // end helper functions
 
 function Ticket(pick, ownerID, machine) {
@@ -114,7 +103,6 @@ function Ticket(pick, ownerID, machine) {
     this.pick = pick;
     this.ownerID = ownerID;
     this.value = generate_ticket(pick, machine);
-    place_ticket(pick, machine, this.value);
 }
 
 
@@ -123,46 +111,59 @@ var machine = new Machine("machine");
 // create instance of Customer
 var owner = new Customer(machine);
 // create instance of Ticket
-new Ticket(3, owner, machine);
+new Ticket(3, ownerID, machine);
 
 console.log(machine);
 
 
 // Ticket purchase
 function purchase_tickets(x,y,z,ID) {
-  var x,y,z,owner;
-
-  if (typeof x === 'undefined') { x = 0; }
-  if (typeof y === 'undefined') { y = 0; }
-  if (typeof z === 'undefined') { z = 0; }
-  if (typeof ID === 'undefined') {
-    var owner = new Customer(machine); }
-  else {
-
+  // validate input
+  var num3,num4,num5,ownerID,extra;
+  if (typeof x === 'undefined') { num3 = 0; }
+  else { num3 = Math.floor(x); }
+  if (typeof y === 'undefined') { num4 = 0; }
+  else { num4 = Math.floor(y); }
+  if (typeof z === 'undefined') { num5 = 0; }
+  else { num5 = Math.floor(z); }
+  if ( num3 + num4 + num5 > 5 ) {
+    throw new Error("Invalid ticket request - you can only get 5!");
   }
+  if (typeof ID === 'undefined') {
+    var owner = new Customer(machine);
+    ownerID = owner.get_id(); }
+  else {
+    ownerID = ID;
+  }
+
+  // purchase pick3s
+  if (num3 > 0) {
+    // still have pick3s left?
+    var sellable = MAX3 - machine.pick3.length;
+    // none left
+    if (sellable == 0) {
+      overage += num3;
+    }
+    // plenty to sell
+    else if (sellable >= num3) {
+      for (var i = 0; i < num3.length; i++) {
+        var tic = new Ticket(3, ownerID, machine);
+        machine.pick3 += tic;
+      }
+    }
+    // fewer than requested
+    else {
+      for (var i = 0; i < sellable; i++) {
+        var tic = new Ticket(3, ownerID, machine);
+        machine.pick3 += tic;
+      }
+      overage += (num3 - sellable);
+    }
+  }
+
+
 }
 
-
-// input: x,y,z,ID
-// -- x,y,z = # of 3,4,5 tickets to purchase
-// --- if sum(x,y,z) - 5 > 0, reject input
-// -- ID = customer ID
-// --- if no ID provided, create customer
-
-// where X = 3, 4, 5
-// if pickX-rem == 0
-// overage += #sought
-// elif pickX-rem >= #sought
-// for i in #sought, create pickX ticket
-// add ticket to pickX array
-// pickX-rem -= 1
-// add ticket to customer array
-// else
-// for i in pickX-rem-copy, create pickX ticket
-// add ticket to pickX array
-// pickX-rem -= 1
-// add ticket to customer array
-// overage += #sought - pickX-rem-copy
 
 // after purchasing requested tickets
 // if overage
