@@ -23,11 +23,14 @@ function Machine(name) {
 
 
 // define Customer constructor
+
+// helper functions
 function generate_id(machine) {
     var id = machine.nextIDNum;
     machine.nextIDNum += 1;
     return id;
 }
+// end helper functions
 
 function Customer(machine) {
     this.id = generate_id(machine);
@@ -37,6 +40,8 @@ function Customer(machine) {
 
 
 // define Ticket constructor
+
+// helper functions
 function get_tickets(pick, machine) {
     var tkt_array;
 
@@ -55,7 +60,6 @@ function get_tickets(pick, machine) {
     }
     return tkt_array;
 }
-
 
 function validate_ticket(pick, value) {
     var tkt_array = get_tickets(pick, machine);
@@ -84,7 +88,23 @@ function generate_ticket(pick) {
     }
 }
 
-function Ticket(pick, owner, machine) {
+function place_ticket(pick, machine, value) {
+  switch (pick) {
+      case 3:
+          machine.pick3 += value;
+          break;
+      case 4:
+          machine.pick4 += value;
+          break;
+      case 5:
+          machine.pick5 += value;
+          break;
+    }
+    return;
+}
+// end helper functions
+
+function Ticket(pick, ownerID, machine) {
     var pick = Math.round(pick);
     console.log(pick);
     if (pick != 3 && pick != 4 && pick != 5) {
@@ -92,8 +112,9 @@ function Ticket(pick, owner, machine) {
     }
 
     this.pick = pick;
-    this.owner = owner.id;
+    this.ownerID = ownerID;
     this.value = generate_ticket(pick, machine);
+    place_ticket(pick, machine, this.value);
 }
 
 
@@ -108,6 +129,20 @@ console.log(machine);
 
 
 // Ticket purchase
+function purchase_tickets(x,y,z,ID) {
+  var x,y,z,owner;
+
+  if (typeof x === 'undefined') { x = 0; }
+  if (typeof y === 'undefined') { y = 0; }
+  if (typeof z === 'undefined') { z = 0; }
+  if (typeof ID === 'undefined') {
+    var owner = new Customer(machine); }
+  else {
+
+  }
+}
+
+
 // input: x,y,z,ID
 // -- x,y,z = # of 3,4,5 tickets to purchase
 // --- if sum(x,y,z) - 5 > 0, reject input
