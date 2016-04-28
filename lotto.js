@@ -91,6 +91,23 @@ function generate_ticket(pick) {
         return generate_ticket(pick);
     }
 }
+
+/*
+function place_ticket(pick, machine, value) {
+  switch (pick) {
+      case 3:
+          machine.pick3 += value;
+          break;
+      case 4:
+          machine.pick4 += value;
+          break;
+      case 5:
+          machine.pick5 += value;
+          break;
+    }
+    return;
+}
+*/
 // end helper functions
 
 function Ticket(pick, ownerID, machine) {
@@ -103,6 +120,7 @@ function Ticket(pick, ownerID, machine) {
     this.pick = pick;
     this.ownerID = ownerID;
     this.value = generate_ticket(pick, machine);
+//    place_ticket(pick, machine, this.value);
 }
 
 
