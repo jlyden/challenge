@@ -138,6 +138,8 @@ console.log(machine);
 function purchase_tickets(x,y,z,ID) {
   // validate input
   var num3,num4,num5,ownerID,extra;
+  var availability = {};
+
   if (typeof x === 'undefined') { num3 = 0; }
   else { num3 = Math.floor(x); }
   if (typeof y === 'undefined') { num4 = 0; }
@@ -160,14 +162,17 @@ function purchase_tickets(x,y,z,ID) {
     var sellable = MAX3 - machine.pick3.length;
     // none left
     if (sellable == 0) {
-      overage += num3;
+      extra += num3;
+      availability[3] = 0;
     }
     // plenty to sell
     else if (sellable >= num3) {
       for (var i = 0; i < num3.length; i++) {
         var tic = new Ticket(3, ownerID, machine);
         machine.pick3 += tic;
+        sellable -= 1;
       }
+      availability[3] = sellable;
     }
     // fewer than requested
     else {
@@ -175,7 +180,8 @@ function purchase_tickets(x,y,z,ID) {
         var tic = new Ticket(3, ownerID, machine);
         machine.pick3 += tic;
       }
-      overage += (num3 - sellable);
+      extra += (num3 - sellable);
+      availability[3] = 0;
     }
   }
 
@@ -185,14 +191,17 @@ function purchase_tickets(x,y,z,ID) {
     var sellable = MAX4 - machine.pick4.length;
     // none left
     if (sellable == 0) {
-      overage += num4;
+      extra += num4;
+      availability[4] = 0;
     }
     // plenty to sell
     else if (sellable >= num4) {
       for (var i = 0; i < num4.length; i++) {
         var tic = new Ticket(4, ownerID, machine);
         machine.pick4 += tic;
+        sellable -= 1;
       }
+      availability[4] = sellable;
     }
     // fewer than requested
     else {
@@ -200,7 +209,8 @@ function purchase_tickets(x,y,z,ID) {
         var tic = new Ticket(4, ownerID, machine);
         machine.pick4 += tic;
       }
-      overage += (num4 - sellable);
+      extra += (num4 - sellable);
+      availability[4] = 0;
     }
   }
 
@@ -210,14 +220,17 @@ function purchase_tickets(x,y,z,ID) {
     var sellable = MAX5 - machine.pick5.length;
     // none left
     if (sellable == 0) {
-      overage += num5;
+      extra += num5;
+      availability[5] = 0;
     }
     // plenty to sell
     else if (sellable >= num5) {
       for (var i = 0; i < num5.length; i++) {
         var tic = new Ticket(5, ownerID, machine);
         machine.pick5 += tic;
+        sellable -= 1;
       }
+      availability[5] = sellable;
     }
     // fewer than requested
     else {
@@ -225,31 +238,30 @@ function purchase_tickets(x,y,z,ID) {
         var tic = new Ticket(5, ownerID, machine);
         machine.pick5 += tic;
       }
-      overage += (num5 - sellable);
+      extra += (num5 - sellable);
+      availability[5] = 0;
     }
   }
 
-  // overage?
-  if (overage > 0) {
-    var availability = [];
-    if (MAX3 - machine.pick3.length > 0) { availability.push(3); }
-    if (MAX4 - machine.pick4.length > 0) { availability.push(4); }
-    if (MAX5 - machine.pick5.length > 0) { availability.push(5); }
+  // looking to purchase "extra" tickets because first choice wasn't available?
+  if (extra > 0) {
+    if (availability.length == 0) { throw new Error("No more tickets available!"); }
+    else {
+      //
+      if (availability.length == 1) {
+
+      }
+
+    }
 
   }
 }
 
 
-// check availability
-// availability = [3,4,5]
-// if pickX-rem < 1
-// remove X from availability
 // for i in overage
-// if availability
 // http://stackoverflow.com/questions/4550505/getting-random-value-from-an-array
 // var X = availability[Math.floor(Math.random() * availability.length)];
 // add ticket to pickX array
 // pickX-rem -= 1
-// add ticket to customer array
 
 // Winner Drawing
