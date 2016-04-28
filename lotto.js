@@ -10,98 +10,28 @@ var MAX5 = 60;
 function Machine(name) {
     this.name = name;
     this.nextIDNum = 1000;
+
     this.customers = [];
+    this.tickets = [];
 
-    this.pick3 = [];
-    this.pick4 = [];
-    this.pick5 = [];
-
-    this.pick3Rem = MAX3 - this.pick3.length;
-    this.pick4Rem = MAX4 - this.pick4.length;
-    this.pick5Rem = MAX5 - this.pick5.length;
+    this.pick3Left = MAX3;
+    this.pick4Left = MAX4;
+    this.pick5Left = MAX5;
 }
 
 
 // define Customer constructor
 function Customer(machine) {
-    this.id = function(machine){
+    function generate_id(machine) {
       var id = machine.nextIDNum;
       machine.nextIDNum += 1;
       return id;
     };
-    machine.customers += this.id;
-
-    this.getID = function() {
-      return this.id;
-    }
+    this.id = generate_id(machine);
+    this.getID = function() { return this.id; }
+    machine.customers.push(this.id);
 }
 
-// define Ticket constructor
-
-// helper functions
-function get_tickets(pick, machine) {
-    var tkt_array;
-
-    switch (pick) {
-        case 3:
-            tkt_array = machine.pick3;
-            break;
-        case 4:
-            tkt_array = machine.pick4;
-            break;
-        case 5:
-            tkt_array = machine.pick5;
-            break;
-        default:
-            throw new Error("Issue in get_tickets.");
-    }
-    return tkt_array;
-}
-
-function validate_ticket(pick, value) {
-    var tkt_array = get_tickets(pick, machine);
-
-    var flag = true;
-    for (var i = 0; i < tkt_array.length; i++) {
-        if (tkt_array[i] == value) {
-            flag = false;
-            break;
-        }
-    }
-    return flag;
-}
-
-function generate_ticket(pick) {
-    var value = "";
-    for (var i = 0; i < pick; i++) {
-        var digit = Math.floor(Math.random() * 10);
-        value += digit;
-    }
-    if (validate_ticket(pick,value) == true) {
-        return value;
-    }
-    else {
-        return generate_ticket(pick);
-    }
-}
-
-/*
-function place_ticket(pick, machine, value) {
-  switch (pick) {
-      case 3:
-          machine.pick3 += value;
-          break;
-      case 4:
-          machine.pick4 += value;
-          break;
-      case 5:
-          machine.pick5 += value;
-          break;
-    }
-    return;
-}
-*/
-// end helper functions
 
 function Ticket(pick, ownerID, machine) {
     var pick = Math.round(pick);
@@ -112,8 +42,39 @@ function Ticket(pick, ownerID, machine) {
 
     this.pick = pick;
     this.ownerID = ownerID;
-    this.value = generate_ticket(pick);
-//    place_ticket(pick, machine, this.value);
+
+    function generate_ticket(pick, machine) {
+        // create ticket
+        var value = "";
+        for (var i = 0; i < pick; i++) {
+            var digit = Math.floor(Math.random() * 10);
+            value += digit;
+        }
+
+        // validate ticket
+        var flag = true;
+        for (var i = 0; i < machine.tickets.length; i++) {
+            if (machine.tickets[i] == value) {
+                flag = false;
+                break;
+            }
+        }
+        if (flag == false) {
+            return generate_ticket(pick, machine);
+        }
+        else {
+            return value;
+        }
+    }
+
+    this.value = generate_ticket(pick, machine);
+    machine.tickets.push(this.value);
+
+    switch (pick){
+      case 3: machine.pick3Left -= 1; break;
+      case 4: machine.pick4Left -= 1; break;
+      case 5: machine.pick5Left -= 1; break;
+    }
 }
 
 
@@ -122,7 +83,7 @@ var machine = new Machine("machine");
 // create instance of Customer
 var owner = new Customer(machine);
 // create instance of Ticket
-new Ticket(3, ownerID, machine);
+new Ticket(3, owner.getID, machine);
 
 console.log(machine);
 
