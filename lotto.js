@@ -179,12 +179,67 @@ function purchase_tickets(x,y,z,ID) {
     }
   }
 
+  // purchase pick4s
+  if (num4 > 0) {
+    // still have pick4s left?
+    var sellable = MAX4 - machine.pick4.length;
+    // none left
+    if (sellable == 0) {
+      overage += num4;
+    }
+    // plenty to sell
+    else if (sellable >= num4) {
+      for (var i = 0; i < num4.length; i++) {
+        var tic = new Ticket(4, ownerID, machine);
+        machine.pick4 += tic;
+      }
+    }
+    // fewer than requested
+    else {
+      for (var i = 0; i < sellable; i++) {
+        var tic = new Ticket(4, ownerID, machine);
+        machine.pick4 += tic;
+      }
+      overage += (num4 - sellable);
+    }
+  }
 
+  // purchase pick5s
+  if (num5 > 0) {
+    // still have pick5s left?
+    var sellable = MAX5 - machine.pick5.length;
+    // none left
+    if (sellable == 0) {
+      overage += num5;
+    }
+    // plenty to sell
+    else if (sellable >= num5) {
+      for (var i = 0; i < num5.length; i++) {
+        var tic = new Ticket(5, ownerID, machine);
+        machine.pick5 += tic;
+      }
+    }
+    // fewer than requested
+    else {
+      for (var i = 0; i < sellable; i++) {
+        var tic = new Ticket(5, ownerID, machine);
+        machine.pick5 += tic;
+      }
+      overage += (num5 - sellable);
+    }
+  }
+
+  // overage?
+  if (overage > 0) {
+    var availability = [];
+    if (MAX3 - machine.pick3.length > 0) { availability.push(3); }
+    if (MAX4 - machine.pick4.length > 0) { availability.push(4); }
+    if (MAX5 - machine.pick5.length > 0) { availability.push(5); }
+
+  }
 }
 
 
-// after purchasing requested tickets
-// if overage
 // check availability
 // availability = [3,4,5]
 // if pickX-rem < 1
