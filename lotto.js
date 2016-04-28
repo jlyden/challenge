@@ -88,122 +88,84 @@ new Ticket(3, owner.getID, machine);
 console.log(machine);
 
 
-// Ticket purchase
-function purchase_tickets(x,y,z,ID) {
+function single_type_ticket_purchase(num3, picksLeft, ownerID, machine) {
+    var leftovers = 0;
+    // none left to sell
+    if (picksLeft == 0) {
+      leftovers += num3;
+    }
+    // plenty to sell
+    else if (picksLeft >= num3) {
+      for (var i = 0; i < num3.length; i++) {
+        var tic = new Ticket(3, ownerID, machine);
+      }
+    }
+    // fewer than requested
+    else if (picksLeft < num3) {
+      for (var i = 0; i < picksLeft; i++) {
+        var tic = new Ticket(3, ownerID, machine);
+        num3 -= 1;
+      }
+      leftovers += num3;
+    }
+    return leftovers;
+}
+
+
+function total_ticket_purchase(x,y,z,ID,machine) {
   // validate input
   var num3,num4,num5,ownerID,extra;
-  var availability = {};
-
   if (typeof x === 'undefined') { num3 = 0; }
-  else { num3 = Math.floor(x); }
+  else { num3 = Math.round(x); }
   if (typeof y === 'undefined') { num4 = 0; }
-  else { num4 = Math.floor(y); }
+  else { num4 = Math.round(y); }
   if (typeof z === 'undefined') { num5 = 0; }
-  else { num5 = Math.floor(z); }
+  else { num5 = Math.round(z); }
   if ( num3 + num4 + num5 > 5 ) {
     throw new Error("Invalid ticket request - you can only get 5!");
   }
   if (typeof ID === 'undefined') {
-    var owner = new Customer(machine);
-    ownerID = owner.get_id(); }
+    var owner = new Customer (machine);
+    ownerID = owner.getID(); }
   else {
     ownerID = ID;
   }
 
   // purchase pick3s
   if (num3 > 0) {
-    // still have pick3s left?
-    var sellable = MAX3 - machine.pick3.length;
-    // none left
-    if (sellable == 0) {
-      extra += num3;
-      availability[3] = 0;
-    }
-    // plenty to sell
-    else if (sellable >= num3) {
-      for (var i = 0; i < num3.length; i++) {
-        var tic = new Ticket(3, ownerID, machine);
-        machine.pick3 += tic;
-        sellable -= 1;
-      }
-      availability[3] = sellable;
-    }
-    // fewer than requested
-    else {
-      for (var i = 0; i < sellable; i++) {
-        var tic = new Ticket(3, ownerID, machine);
-        machine.pick3 += tic;
-      }
-      extra += (num3 - sellable);
-      availability[3] = 0;
-    }
+    var leftovers = single_type_ticket_purchase(num3, machine.pick3Left, ownerID, machine);
+    extra += leftovers;
   }
-
   // purchase pick4s
   if (num4 > 0) {
-    // still have pick4s left?
-    var sellable = MAX4 - machine.pick4.length;
-    // none left
-    if (sellable == 0) {
-      extra += num4;
-      availability[4] = 0;
-    }
-    // plenty to sell
-    else if (sellable >= num4) {
-      for (var i = 0; i < num4.length; i++) {
-        var tic = new Ticket(4, ownerID, machine);
-        machine.pick4 += tic;
-        sellable -= 1;
-      }
-      availability[4] = sellable;
-    }
-    // fewer than requested
-    else {
-      for (var i = 0; i < sellable; i++) {
-        var tic = new Ticket(4, ownerID, machine);
-        machine.pick4 += tic;
-      }
-      extra += (num4 - sellable);
-      availability[4] = 0;
-    }
+    var leftovers = single_type_ticket_purchase(num4, machine.pick4Left, ownerID, machine);
+    extra += leftovers;
   }
-
   // purchase pick5s
   if (num5 > 0) {
-    // still have pick5s left?
-    var sellable = MAX5 - machine.pick5.length;
-    // none left
-    if (sellable == 0) {
-      extra += num5;
-      availability[5] = 0;
-    }
-    // plenty to sell
-    else if (sellable >= num5) {
-      for (var i = 0; i < num5.length; i++) {
-        var tic = new Ticket(5, ownerID, machine);
-        machine.pick5 += tic;
-        sellable -= 1;
-      }
-      availability[5] = sellable;
-    }
-    // fewer than requested
-    else {
-      for (var i = 0; i < sellable; i++) {
-        var tic = new Ticket(5, ownerID, machine);
-        machine.pick5 += tic;
-      }
-      extra += (num5 - sellable);
-      availability[5] = 0;
-    }
+    var leftovers = single_type_ticket_purchase(num5, machine.pick5Left, ownerID, machine);
+    extra += leftovers;
   }
 
   // looking to purchase "extra" tickets because first choice wasn't available?
   if (extra > 0) {
-    if (availability.length == 0) { throw new Error("No more tickets available!"); }
-    else {
-      //
-      if (availability.length == 1) {
-
+    if (machine.pick3Left == 0) {
+      if (machine.pick4Left == 0) {
+        if (machine.pick5Left == 0) {
+          // if ALL ticket types are gone:
+          throw new Error("No more tickets available!");
+        }
+        else {
+          // if ONLY pick5s remain, buy as many as possible (within request)
+          var leftovers = single_type_ticket_purchase(extra, machine.pick5Left, ownerID, machine);
+          // if tickets run out before request completely filled:
+          if (leftovers > 0) {
+            throw new Error("No more tickets available!");
+          }
+        }
+      }
+      else if
+    } 
       }
 
     }
@@ -211,11 +173,5 @@ function purchase_tickets(x,y,z,ID) {
   }
 }
 
-
-// for i in overage
-// http://stackoverflow.com/questions/4550505/getting-random-value-from-an-array
-// var X = availability[Math.floor(Math.random() * availability.length)];
-// add ticket to pickX array
-// pickX-rem -= 1
 
 // Winner Drawing
