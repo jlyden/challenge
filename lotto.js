@@ -11,8 +11,7 @@ function Machine(name) {
     this.name = name;
     this.nextIDNum = 1000;
 
-    // Make customers a dictionary where IDs are keys and tickets bought are values
-    this.customers = [];
+    this.customers = {};
     this.tickets = [];
 
     this.pick3Left = MAX3;
@@ -22,6 +21,7 @@ function Machine(name) {
 
 
 // define Customer constructor
+// expandable to include additional info like "name", "phone" or "e-mail"
 function Customer(machine) {
     function generate_id(machine) {
       var id = machine.nextIDNum;
@@ -89,25 +89,25 @@ new Ticket(3, owner.getID, machine);
 console.log(machine);
 
 
-function single_type_ticket_purchase(num3, picksLeft, ownerID, machine) {
+function single_type_ticket_purchase(numTics, pick, picksLeft, ownerID, machine) {
     var leftovers = 0;
     // none left to sell
     if (picksLeft == 0) {
-      leftovers += num3;
+      leftovers += numTics;
     }
     // plenty to sell
-    else if (picksLeft >= num3) {
-      for (var i = 0; i < num3.length; i++) {
-        var tic = new Ticket(3, ownerID, machine);
+    else if (picksLeft >= numTics) {
+      for (var i = 0; i < numTics.length; i++) {
+        var tic = new Ticket(pick, ownerID, machine);
       }
     }
     // fewer than requested
-    else if (picksLeft < num3) {
+    else if (picksLeft < numTics) {
       for (var i = 0; i < picksLeft; i++) {
-        var tic = new Ticket(3, ownerID, machine);
-        num3 -= 1;
+        var tic = new Ticket(pick, ownerID, machine);
+        numTics -= 1;
       }
-      leftovers += num3;
+      leftovers += numTics;
     }
     return leftovers;
 }
@@ -134,20 +134,22 @@ function total_ticket_purchase(x,y,z,ID,machine) {
 
   // purchase pick3s
   if (num3 > 0) {
-    var leftovers = single_type_ticket_purchase(num3, machine.pick3Left, ownerID, machine);
+    var leftovers = single_type_ticket_purchase(num3, 3, machine.pick3Left, ownerID, machine);
     extra += leftovers;
   }
   // purchase pick4s
   if (num4 > 0) {
-    var leftovers = single_type_ticket_purchase(num4, machine.pick4Left, ownerID, machine);
+    var leftovers = single_type_ticket_purchase(num4, 4, machine.pick4Left, ownerID, machine);
     extra += leftovers;
   }
   // purchase pick5s
   if (num5 > 0) {
-    var leftovers = single_type_ticket_purchase(num5, machine.pick5Left, ownerID, machine);
+    var leftovers = single_type_ticket_purchase(num5, 5, machine.pick5Left, ownerID, machine);
     extra += leftovers;
   }
+}
 
+/*
   // looking to purchase "extra" tickets because first choice wasn't available?
   if (extra > 0) {
     if (machine.pick3Left == 0) {
@@ -158,22 +160,82 @@ function total_ticket_purchase(x,y,z,ID,machine) {
         }
         else {
           // if ONLY pick5s remain, buy as many as possible (within request)
-          var leftovers = single_type_ticket_purchase(extra, machine.pick5Left, ownerID, machine);
+          var leftovers = single_type_ticket_purchase(extra, 5, machine.pick5Left, ownerID, machine);
           // if tickets run out before request completely filled:
           if (leftovers > 0) {
             throw new Error("No more tickets available!");
           }
         }
       }
-      // specified for clarity
-      else if (machine.pick4Left < 0 && machine.pick5Left == 0)
+      // specified for clarity - only pick4s remain
+      else if (machine.pick4Left > 0 && machine.pick5Left == 0) {
+        // if ONLY pick4s remain, buy as many as possible (within request)
+        var leftovers = single_type_ticket_purchase(extra, 4, machine.pick4Left, ownerID, machine);
+        // if tickets run out before request completely filled:
+        if (leftovers > 0) {
+          throw new Error("No more tickets available!");
+      }
+      // specified for clarity - pick4s and pick5s remain
+      else if (machine.pick4Left > 0 && machine.pick5Left > 0) {
+        // select randomly which kind of ticket will be bought
+        // random bool from http://jsfiddle.net/Ronny/Ud5vT/
+        for (var i = 0; i < extras; i++){
+          if (Math.random()<.5 == true) {
+            single_type_ticket_purchase(1, 4, machine.pick4Left, ownerID, machine);
+          }
+          else {
+            single_type_ticket_purchase(1, 4, machine.pick4Left, ownerID, machine);
+          }
+        }
+      }
     }
       }
-
     }
+*/
 
+// full machine (no more tickets left) check from ABOVE should trigger drawing
+// Winner Drawing
+// break tickets array into three arrays
+function split_tickets_array(array) {
+  var pick3s = [];
+  var pick4s = [];
+  var pick5s = [];
+  var array_length = array.length;
+
+  for (var i = 0; i < array_length; i++) {
+    var tic_length = array[i].length;
+    if (tic_length == 3) { pick3s.push(array[i]); }
+    else if (tic_length == 4) { pick4s.push(array[i]); }
+    else if (tic_length == 5) { pick5s.push(array[i]); }
+    else { throw new Error("Invalid ticket type in tickets array!"); }
   }
+  return [pick3s, pick4s, pick5s];
 }
 
+// from each, pick random winner
+var tickets_arrays = split_tickets_array(machine.tickets)
 
-// Winner Drawing
+// pick random number from each ticket pool
+var pick3 = Math.floor((Math.random() * MAX3) + 1);
+var pick4 = Math.floor((Math.random() * MAX4) + 1);
+var pick5 = Math.floor((Math.random() * MAX5) + 1);
+
+// find that number in the ticket pool
+var pick3-win-tic = tickets_arrays[0][pick3];
+var pick4-win-tic = tickets_arrays[1][pick4];
+var pick5-win-tic = tickets_arrays[2][pick5];
+
+// find that ticket in the machine-customers dictionary
+
+
+// find associated customer ID from machine-customers dictionary
+
+
+// Simulation Report
+// report how many customer purchased tickets
+/// count keys in machine-customers dictionary
+// which customers won for each type
+// which numbers selected in drawing
+// types of tickets purchased by each customer
+/// report based on machine-customers dictionary
+// did customers attempt to purchase sold-old types
